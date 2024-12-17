@@ -25,7 +25,7 @@ urlpatterns = [
     path('crear-usuario/', views.crear_usuario, name='crear_usuario'),
     #path('crear-usuario/', views.crear_usuario, name='crear_usuario'),
     
-    path('iniciar-sesion/', LoginView.as_view(template_name='iniciar_sesion.html'), name='iniciar_sesion'),
+    path('iniciar-sesion/', views.iniciar_sesion, name='iniciar_sesion'),
     path('perfil/', views.perfil, name='perfil'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('recomendaciones/contenido/<int:libro_id>/', recomendaciones_contenido, name='recomendaciones_contenido'),

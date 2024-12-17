@@ -154,6 +154,47 @@ def crear_usuario(request):
 
     return JsonResponse({'error': 'Método no permitido. Usa POST.'}, status=405)
 
+
+import json
+from django.http import JsonResponse
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import User as Usuario
+from django.contrib.sessions.models import Session  # Para gestionar sesiones
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def iniciar_sesion(request):
+    if request.method == 'POST':
+        try:
+            # Parsear los datos del JSON enviado
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+
+            # Validar que se enviaron los datos necesarios
+            if not username or not password:
+                return JsonResponse({'error': 'El nombre de usuario y la contraseña son obligatorios.'}, status=400)
+
+            # Verificar si el usuario existe
+            try:
+                usuario = Usuario.objects.get(username=username)
+            except Usuario.DoesNotExist:
+                return JsonResponse({'error': 'Usuario o contraseña incorrectos.'}, status=401)
+
+            # Validar la contraseña
+            if not check_password(password, usuario.password):
+                return JsonResponse({'error': 'Usuario o contraseña incorrectos.'}, status=401)
+
+            # Crear una sesión (si no se utiliza JWT u otro mecanismo)
+            request.session['usuario_id'] = usuario.id
+            return JsonResponse({'message': f"Inicio de sesión exitoso. Bienvenido, {usuario.username}."}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido.'}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido. Usa POST.'}, status=405)
+
+
 def perfil(request):
     return render(request, 'perfil.html', {'usuario': request.user})
 
